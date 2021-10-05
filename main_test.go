@@ -1,7 +1,6 @@
 package main
 
 import (
-	"reflect"
 	"strconv"
 	"testing"
 
@@ -33,6 +32,19 @@ func Test_parse(t *testing.T) {
 				{
 					Data: []*athena.Datum{
 						{
+							VarCharValue: aws.String("timestamp"),
+						},
+						{
+							VarCharValue: aws.String("value"),
+						},
+						{
+							VarCharValue: aws.String("label_name1"),
+						},
+					},
+				},
+				{
+					Data: []*athena.Datum{
+						{
 							VarCharValue: aws.String(strconv.FormatInt(expectedTimestamp, 10)),
 						},
 						{
@@ -47,20 +59,20 @@ func Test_parse(t *testing.T) {
 		},
 	}
 
-	ch := make(chan interface{}, 1)
-	parse(&results, ch)
-	mm := <-ch
+	m, err := parse(&results)
+	if err != nil {
+		t.Errorf("")
+	}
 
-	m := reflect.ValueOf(mm).Elem()
-	timestamp := m.FieldByName("Timestamp").Int()
+	timestamp := m[0].Timestamp
 	if timestamp != expectedTimestamp {
 		t.Errorf("got: %v\nwant: %v", timestamp, expectedTimestamp)
 	}
-	value := m.FieldByName("Value").Float()
+	value := m[0].Value
 	if value != expectedValue {
 		t.Errorf("got: %v\nwant: %v", value, expectedValue)
 	}
-	labelValue := m.FieldByName("Labels").MapIndex(reflect.ValueOf("label_name1")).String()
+	labelValue := m[0].Labels["label_name1"]
 	if labelValue != expectedLabelValue {
 		t.Errorf("got: %v\nwant: %v", labelValue, expectedLabelValue)
 	}
