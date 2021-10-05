@@ -17,11 +17,13 @@ func parse(results *athena.GetQueryResultsOutput, ch chan interface{}) {
 			switch *columnName {
 			case "timestamp":
 				if cval, err := strconv.ParseInt(*cell.VarCharValue, 10, 64); err != nil {
+					// error handling
 				} else {
 					m.Timestamp = cval
 				}
 			case "value":
 				if cval, err := strconv.ParseFloat(*cell.VarCharValue, 64); err != nil {
+					// error handling
 				} else {
 					m.Value = cval
 				}
