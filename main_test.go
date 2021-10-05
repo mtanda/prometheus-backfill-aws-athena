@@ -1,12 +1,12 @@
 package main
 
 import (
+	"reflect"
 	"strconv"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/athena"
-	"github.com/mtanda/prometheus-backfill-aws-athena/models"
 )
 
 func Test_parse(t *testing.T) {
@@ -47,17 +47,21 @@ func Test_parse(t *testing.T) {
 		},
 	}
 
-	ch := make(chan *models.AthenaRow, 1)
+	ch := make(chan interface{}, 1)
 	parse(&results, ch)
-	m := <-ch
+	mm := <-ch
 
-	if m.Timestamp != expectedTimestamp {
-		t.Errorf("got: %v\nwant: %v", m.Timestamp, expectedTimestamp)
+	m := reflect.ValueOf(mm).Elem()
+	timestamp := m.FieldByName("Timestamp").Int()
+	if timestamp != expectedTimestamp {
+		t.Errorf("got: %v\nwant: %v", timestamp, expectedTimestamp)
 	}
-	if m.Value != expectedValue {
-		t.Errorf("got: %v\nwant: %v", m.Value, expectedValue)
+	value := m.FieldByName("Value").Float()
+	if value != expectedValue {
+		t.Errorf("got: %v\nwant: %v", value, expectedValue)
 	}
-	if m.Labels["label_name1"] != expectedLabelValue {
-		t.Errorf("got: %v\nwant: %v", m.Labels["label_name1"], expectedLabelValue)
+	labelValue := m.FieldByName("Labels").MapIndex(reflect.ValueOf("label_name1")).String()
+	if labelValue != expectedLabelValue {
+		t.Errorf("got: %v\nwant: %v", labelValue, expectedLabelValue)
 	}
 }

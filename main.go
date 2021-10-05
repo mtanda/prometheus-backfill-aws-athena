@@ -7,7 +7,7 @@ import (
 	"github.com/mtanda/prometheus-backfill-aws-athena/models"
 )
 
-func parse(results *athena.GetQueryResultsOutput, ch chan *models.AthenaRow) {
+func parse(results *athena.GetQueryResultsOutput, ch chan interface{}) {
 	columnInfo := results.ResultSet.ResultSetMetadata.ColumnInfo
 	for _, row := range results.ResultSet.Rows {
 		m := models.AthenaRow{}
