@@ -32,7 +32,9 @@ type query struct {
 	Interval  string
 }
 
-type config []query
+type config struct {
+	Queries []query
+}
 
 func main() {
 	ctx := context.Background()
@@ -58,7 +60,7 @@ func main() {
 }
 
 func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string) {
-	interval, err := time.ParseDuration(cfg[0].Interval)
+	interval, err := time.ParseDuration(cfg.Queries[0].Interval)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,7 +76,7 @@ func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string) {
 			storeBstThreshold, semaphoreWeight, ch,
 			totalNumberOfMessagesWillBeSent, srcPath,
 		)
-		go getQueryResult(ctx, ch, cfg[0])
+		go getQueryResult(ctx, ch, cfg.Queries[0])
 		bh.RunJob()
 		//w := tabwriter.NewWriter(os.Stdout, 1, 2, 5, ' ', tabwriter.DiscardEmptyColumns)
 		//mem := runtime.MemStats{}

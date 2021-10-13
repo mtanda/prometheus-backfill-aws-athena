@@ -1,4 +1,5 @@
-- region: us-east-1
-  query: SELECT 1 AS timestamp, 2 AS value;
-  workgroup: primary
-  interval: 1h
+queries:
+  - region: us-east-1
+    query: SELECT 1 AS timestamp, 2 AS value;
+    workgroup: primary
+    interval: 1h
