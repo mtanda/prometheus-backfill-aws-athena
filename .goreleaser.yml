@@ -1,0 +1,50 @@
+builds:
+- main: ./
+  flags: -a -tags netgo
+  ldflags: |
+    -s -w
+  env:
+    - CGO_ENABLED=0
+  goos:
+    - linux
+    - darwin
+  goarch:
+    - amd64
+nfpms:
+  -
+    package_name: prometheus-backfill-aws-athena
+    file_name_template: 'prometheus-backfill-aws-athena_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}'
+    homepage: https://github.com/mtanda/prometheus-backfill-aws-athena
+    maintainer: Mitsuhiro Tanda
+    description: prometheus-backfill-aws-athena
+    license: Apache 2.0
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    formats:
+      - deb
+      - rpm
+    contents:
+      - src: "packaging/deb/etc/default/prometheus-backfill-aws-athena"
+        dst: "/etc/default/prometheus-backfill-aws-athena"
+        type: config
+      - src: "packaging/deb/usr/local/etc/prometheus-backfill-aws-athena.yml"
+        dst: "/usr/local/etc/prometheus-backfill-aws-athena.yml"
+        type: config
+      - src: "packaging/deb/systemd"
+        dst: "/usr/lib/systemd/system"
+    scripts:
+      postinstall: "packaging/scripts/postinstall.sh"
+      postremove: "packaging/scripts/postremove.sh"
+      preremove: "packaging/scripts/preremove.sh"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+    - '^cut:'
+    - '^typo'
