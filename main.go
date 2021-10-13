@@ -43,6 +43,8 @@ func main() {
 	flag.StringVar(&configFile, "config.file", "./backfill.yml", "Configuration file path.")
 	var dstPath string
 	flag.StringVar(&dstPath, "tsdb.path", "", "Prometheus TSDB path")
+	var tmpPath string
+	flag.StringVar(&tmpPath, "tsdb.tmp.path", "", "Prometheus TSDB path")
 	flag.Parse()
 
 	buf, err := ioutil.ReadFile(configFile)
@@ -56,10 +58,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	LaunchPrometheusBackfill(ctx, cfg, dstPath)
+	LaunchPrometheusBackfill(ctx, cfg, dstPath, tmpPath)
 }
 
-func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string) {
+func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string, tmpPath string) {
 	interval, err := time.ParseDuration(cfg.Queries[0].Interval)
 	if err != nil {
 		log.Fatal(err)
@@ -69,7 +71,7 @@ func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string) {
 
 	for ; true; <-ticker.C {
 		now := time.Now().UTC().Truncate(interval)
-		srcPath := "./data/" + now.Format("20060102_150405")
+		srcPath := tmpPath + now.Format("20060102_150405")
 		totalNumberOfMessagesWillBeSent := int64(2e4)
 		ch := make(chan interface{}, bufferedChanCap)
 		bh := prometheus_backfill.NewPrometheusBackfillHandler(blockDuration, maxPerAppender,

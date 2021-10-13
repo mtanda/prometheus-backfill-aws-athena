@@ -1,1 +1,1 @@
-ARGS="--config.file=/usr/local/etc/prometheus-backfill-aws-athena.yml --tsdb.path=./tsdb"
+ARGS="--config.file=/usr/local/etc/prometheus-backfill-aws-athena.yml --tsdb.tmp.path=./data --tsdb.path=./tsdb"
