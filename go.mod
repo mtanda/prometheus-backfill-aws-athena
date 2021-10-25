@@ -33,4 +33,4 @@ require (
 	google.golang.org/protobuf v1.25.0 // indirect
 )
 
-replace github.com/aleskandro/go-prometheus-backfiller => github.com/mtanda/go-prometheus-backfiller v1.0.1
+replace github.com/aleskandro/go-prometheus-backfiller => github.com/mtanda/go-prometheus-backfiller v1.0.2
