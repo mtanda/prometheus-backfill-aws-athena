@@ -11,8 +11,10 @@ import (
 
 	prometheus_backfill "github.com/aleskandro/go-prometheus-backfiller"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/athena"
+	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/mtanda/prometheus-backfill-aws-athena/models"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -26,10 +28,11 @@ var (
 )
 
 type query struct {
-	Region    string
-	Query     string
-	Workgroup string
-	Interval  string
+	AssumeRoleArn string `yaml:"assumeRoleArn"`
+	Region        string
+	Query         string
+	Workgroup     string
+	Interval      string
 }
 
 type config struct {
@@ -91,13 +94,12 @@ func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string, t
 }
 
 func getQueryResult(ctx context.Context, ch chan interface{}, query query) {
-	cfg := &aws.Config{
-		Region: aws.String(query.Region),
-	}
-	sess, err := session.NewSession(cfg)
-	if err != nil {
-		log.Fatal(err)
-		return
+	cfg := aws.NewConfig().WithRegion(query.Region)
+	sess := session.Must(session.NewSession())
+	if query.AssumeRoleArn != "" {
+		assumeRole := sts.New(sess)
+		creds := stscreds.NewCredentialsWithClient(assumeRole, query.AssumeRoleArn)
+		cfg = cfg.WithCredentials(creds)
 	}
 
 	client := athena.New(sess, cfg)
