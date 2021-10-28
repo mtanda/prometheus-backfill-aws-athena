@@ -15,7 +15,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/athena"
 	"github.com/aws/aws-sdk-go/service/sts"
+	plog "github.com/go-kit/kit/log"
 	"github.com/mtanda/prometheus-backfill-aws-athena/models"
+	"github.com/prometheus/prometheus/tsdb"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -34,6 +36,7 @@ type query struct {
 	Workgroup     string
 	Interval      string
 	Offset        string
+	MaxSeries     int `yaml:"maxSeries"`
 }
 
 type config struct {
@@ -94,9 +97,35 @@ func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string, t
 		//w := tabwriter.NewWriter(os.Stdout, 1, 2, 5, ' ', tabwriter.DiscardEmptyColumns)
 		//mem := runtime.MemStats{}
 		//bh.PrintStats(w, mem)
-		err := importTSDB(srcPath, dstPath)
+
+		logger := plog.NewNopLogger()
+		db, err := tsdb.OpenDBReadOnly(
+			srcPath,
+			logger,
+		)
 		if err != nil {
 			log.Fatal(err)
+		}
+		blocks, err := db.Blocks()
+		if err != nil {
+			log.Fatal(err)
+		}
+		skipImport := false
+		for _, block := range blocks {
+			if cfg.Queries[0].MaxSeries > 0 && block.Meta().Stats.NumSeries > uint64(cfg.Queries[0].MaxSeries) {
+				skipImport = true
+				break
+			}
+		}
+		db.Close()
+
+		if !skipImport {
+			err = importTSDB(srcPath, dstPath)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			log.Printf("exceed max series limit, path = %s", srcPath)
 		}
 
 		d = time.Until(time.Now().UTC().Truncate(interval).Add(interval).Add(offset))
