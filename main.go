@@ -33,6 +33,7 @@ type query struct {
 	Query         string
 	Workgroup     string
 	Interval      string
+	Offset        string
 }
 
 type config struct {
@@ -69,10 +70,17 @@ func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string, t
 	if err != nil {
 		log.Fatal(err)
 	}
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
+	if cfg.Queries[0].Offset == "" {
+		cfg.Queries[0].Offset = "0s"
+	}
+	offset, err := time.ParseDuration(cfg.Queries[0].Offset)
+	if err != nil {
+		log.Fatal(err)
+	}
+	d := time.Until(time.Now().UTC().Truncate(interval).Add(interval).Add(offset))
+	timer := time.NewTimer(d)
 
-	for ; true; <-ticker.C {
+	for range timer.C {
 		now := time.Now().UTC().Truncate(interval)
 		srcPath := tmpPath + now.Format("20060102_150405")
 		totalNumberOfMessagesWillBeSent := int64(2e4)
@@ -90,6 +98,9 @@ func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string, t
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		d = time.Until(time.Now().UTC().Truncate(interval).Add(interval).Add(offset))
+		timer.Reset(d)
 	}
 }
 
