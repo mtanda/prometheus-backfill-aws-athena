@@ -80,8 +80,7 @@ func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string, t
 	if err != nil {
 		log.Fatal(err)
 	}
-	d := time.Until(time.Now().UTC().Truncate(interval).Add(interval).Add(offset))
-	timer := time.NewTimer(d)
+	timer := time.NewTimer(getTimerDuration(interval, offset))
 
 	for range timer.C {
 		now := time.Now().UTC().Truncate(interval)
@@ -128,9 +127,17 @@ func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string, t
 			log.Printf("exceed max series limit, path = %s", srcPath)
 		}
 
-		d = time.Until(time.Now().UTC().Truncate(interval).Add(interval).Add(offset))
-		timer.Reset(d)
+		timer.Reset(getTimerDuration(interval, offset))
 	}
+}
+
+func getTimerDuration(interval time.Duration, offset time.Duration) time.Duration {
+	now := time.Now().UTC()
+	t := now.Truncate(interval).Add(interval).Add(offset)
+	if t.Before(now) {
+		t = t.Add(interval)
+	}
+	return t.Sub(now)
 }
 
 func getQueryResult(ctx context.Context, ch chan interface{}, query query) {
