@@ -137,7 +137,11 @@ func getTimerDuration(interval time.Duration, offset time.Duration) time.Duratio
 	if t.Before(now) {
 		t = t.Add(interval)
 	}
-	return t.Sub(now)
+	d := t.Sub(now)
+	if d > 24*time.Hour {
+		d -= 24 * time.Hour
+	}
+	return d
 }
 
 func getQueryResult(ctx context.Context, ch chan interface{}, query query) {
