@@ -184,6 +184,7 @@ func getQueryResult(ctx context.Context, ch chan interface{}, query query) {
 		}
 	}
 
+	isFirstPage := true
 	if err := client.GetQueryResultsPagesWithContext(
 		ctx,
 		&athena.GetQueryResultsInput{
@@ -191,12 +192,13 @@ func getQueryResult(ctx context.Context, ch chan interface{}, query query) {
 			MaxResults:       aws.Int64(1000),
 		},
 		func(page *athena.GetQueryResultsOutput, lastPage bool) bool {
-			if m, err := parse(page); err != nil {
+			if m, err := parse(page, isFirstPage); err != nil {
 				log.Fatal(err)
 				return false
 			} else {
 				ch <- m
 			}
+			isFirstPage = false
 			return !lastPage
 		}); err != nil {
 		log.Fatal(err)
@@ -206,10 +208,14 @@ func getQueryResult(ctx context.Context, ch chan interface{}, query query) {
 	close(ch)
 }
 
-func parse(results *athena.GetQueryResultsOutput) ([]*models.AthenaRow, error) {
+func parse(results *athena.GetQueryResultsOutput, isFirstPage bool) ([]*models.AthenaRow, error) {
 	ms := make([]*models.AthenaRow, 0)
 	columnInfo := results.ResultSet.ResultSetMetadata.ColumnInfo
-	for _, row := range results.ResultSet.Rows[1:] {
+	offset := 0
+	if isFirstPage {
+		offset = 1
+	}
+	for _, row := range results.ResultSet.Rows[offset:] {
 		m := models.AthenaRow{}
 		m.Labels = make(map[string]string)
 		for columnIdx, cell := range row.Data {
