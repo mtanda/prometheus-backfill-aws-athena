@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	blockDuration     = int64(2 * time.Hour / time.Millisecond)
+	blockDuration     = int64(1 * time.Hour / time.Millisecond)
 	maxPerAppender    = int64(100e6)
 	storeBstThreshold = int64(1e3)
 	bufferedChanCap   = 128
