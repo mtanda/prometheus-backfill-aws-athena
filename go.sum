@@ -533,8 +533,8 @@ github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3Rllmb
 github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe/go.mod h1:wL8QJuTMNUDYhXwkmfOly8iTdp5TEcJFWZD2D7SIkUc=
 github.com/morikuni/aec v1.0.0/go.mod h1:BbKIizmSmc5MMPqRYbxO4ZU0S0+P200+tUnFx7PXmsc=
 github.com/mschoch/smat v0.0.0-20160514031455-90eadee771ae/go.mod h1:qAyveg+e4CE+eKJXWVjKXM4ck2QobLqTDytGJbLLhJg=
-github.com/mtanda/go-prometheus-backfiller v1.0.2 h1:TklSi2N5TPHclf6Hlq8gu3TtHwv2XhI/y0sNlo4h3Ik=
-github.com/mtanda/go-prometheus-backfiller v1.0.2/go.mod h1:pWUWnpP0pNICMD99+GlqQc3seLiAnnRgfJEP4hcixPE=
+github.com/mtanda/go-prometheus-backfiller v1.0.3 h1:1UyS0g81OUR3TKInnpU69OpYESy1rHV40CyemR5ypf0=
+github.com/mtanda/go-prometheus-backfiller v1.0.3/go.mod h1:pWUWnpP0pNICMD99+GlqQc3seLiAnnRgfJEP4hcixPE=
 github.com/munnerz/goautoneg v0.0.0-20120707110453-a547fc61f48d/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
