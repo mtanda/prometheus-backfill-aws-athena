@@ -121,7 +121,11 @@ func LaunchPrometheusBackfill(ctx context.Context, cfg config, dstPath string, t
 		if !skipImport {
 			err = importTSDB(srcPath, dstPath)
 			if err != nil {
-				log.Fatal(err)
+				if os.IsNotExist(err) {
+					log.Printf("failed to import")
+				} else {
+					log.Fatal(err)
+				}
 			}
 		} else {
 			log.Printf("exceed max series limit, path = %s", srcPath)
@@ -244,7 +248,7 @@ func parse(results *athena.GetQueryResultsOutput, isFirstPage bool) ([]*models.A
 
 func importTSDB(srcPath string, dstPath string) error {
 	_, err := os.Stat(dstPath)
-	if os.IsNotExist(err) {
+	if err != nil {
 		return err
 	}
 
